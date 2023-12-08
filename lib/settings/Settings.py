@@ -4,7 +4,7 @@ class static(object):
         raise RuntimeError('%s new keyword invalid, static class' % cls)
 
 class Settings(static):
-    _prompt = "oppenheimer-db> "
+    _prompt = "davisql> "
     _db_name = "OppenheimerDB"
     _data_dir = "data"
     _exec_path = ""
