@@ -1,4 +1,6 @@
-data/*
-env/*
-.env/*
+data/
+env/
+.env/
 *.pyc
+.DS_Store
+.pytest_cache/
