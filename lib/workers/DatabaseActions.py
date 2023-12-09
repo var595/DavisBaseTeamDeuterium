@@ -5,7 +5,7 @@ from pyparsing import Dict
 from lib.objects.Index import Index
 from lib.objects.SystemTable import SystemTable
 from lib.objects.Table import Table
-from lib.parsers.Command import Command
+from lib.parsers.Command import CommandProcessor
 from lib.parsers.OutputFormat import OutputFormat
 
 from lib.parsers.Query import Query
@@ -34,26 +34,31 @@ class DatabaseActions:
         else:
             try:
                 parsed_tokens = Query(command).parse()[0]
-                Command.router(parsed_tokens, tables, indexes)
+                CommandProcessor().router(parsed_tokens, tables, indexes)
                 DatabaseActions.save_to_disk(tables, indexes)
                 DatabaseActions.load_db(tables, indexes)
-            except Exception:
+            except Exception as e:
+                print(e)
                 print("Error: Invalid Command - Please check your syntax and try again")
 
     @staticmethod
     def create_database(tables: Dict, indexes: Dict):
-        Command.router(CreateDatabase.create_system_tables(), tables, indexes)
-        Command.router(CreateDatabase.create_system_columns(), tables, indexes)
+        CommandProcessor().router(
+            CreateDatabase.create_system_tables(), tables, indexes
+        )
+        CommandProcessor().router(
+            CreateDatabase.create_system_columns(), tables, indexes
+        )
 
         for entry in CreateDatabase.fill_system_tables():
             try:
-                Command.router(entry, tables, indexes)
+                CommandProcessor().router(entry, tables, indexes)
             except:
                 traceback.print_exc()
 
         for entry in CreateDatabase.fill_system_columns():
             try:
-                Command.router(entry, tables, indexes)
+                CommandProcessor().router(entry, tables, indexes)
             except:
                 traceback.print_exc()
 
@@ -90,7 +95,7 @@ class DatabaseActions:
                 rec_count = tab.id_row
                 parsed_tokens = SystemTable.update_table_data(k, rec_count)
 
-                Command.router(parsed_tokens, tables, indexes)
+                CommandProcessor().router(parsed_tokens, tables, indexes)
                 file_path = os.path.join(
                     exec_path, Settings.get_data_dir(), f"{k}{tbl_ext}"
                 )
@@ -101,7 +106,7 @@ class DatabaseActions:
             if k in {"system_tables", "system_columns"}:
                 rec_count = tab.id_row
                 parsed_tokens = SystemTable.update_table_data(k, rec_count)
-                Command.router(parsed_tokens, tables, indexes)
+                CommandProcessor().router(parsed_tokens, tables, indexes)
                 file_path = os.path.join(
                     exec_path, Settings.get_data_dir(), f"{k}{tbl_ext}"
                 )
@@ -176,20 +181,20 @@ class DatabaseActions:
                 "select id_row from system_tables where table_name = 'system_tables';"
             ).parse()[0]
             pdict["ret_mode"] = True
-            table_rec_count = Command.router(pdict, tables, indexes)
+            table_rec_count = CommandProcessor().router(pdict, tables, indexes)
 
             pdict = Query(
                 "select id_row from system_tables where table_name = 'system_columns';"
             ).parse()[0]
             pdict["ret_mode"] = True
-            col_rec_count = Command.router(pdict, tables, indexes)
+            col_rec_count = CommandProcessor().router(pdict, tables, indexes)
 
             tables["system_tables"].id_row = table_rec_count[-1][-1]
             tables["system_columns"].id_row = col_rec_count[-1][-1]
 
             pdict = Query("show tables;").parse()[0]
             pdict["ret_mode"] = True
-            table_names = Command.router(pdict, tables, indexes)
+            table_names = CommandProcessor().router(pdict, tables, indexes)
             for t in table_names:
                 table_name = t[-1]
                 if table_name not in tables:
@@ -200,7 +205,7 @@ class DatabaseActions:
 
                     cdata = SystemTable.parse_column_data(table_name)
                     cdata["ret_mode"] = True
-                    cdata_list = Command.router(cdata, tables, indexes)
+                    cdata_list = CommandProcessor().router(cdata, tables, indexes)
                     cdata_list.sort(key=lambda x: x[2])
 
                     column_data = {
@@ -212,7 +217,7 @@ class DatabaseActions:
 
                     tdata = SystemTable.parse_table_data(table_name)
                     tdata["ret_mode"] = True
-                    output = Command.router(tdata, tables, indexes)
+                    output = CommandProcessor().router(tdata, tables, indexes)
 
                     rec_count = 0
 
