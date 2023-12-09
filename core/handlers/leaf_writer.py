@@ -12,6 +12,16 @@ from core.config.config_manager import config_manager
 
 @dataclass
 class leaf_writer:
+    """
+    Class to handle writing leaf nodes.
+
+    Attributes:
+    - page_number (int): The page number.
+    - header (page_header): The page header.
+    - offsets (List[bytes]): Offsets list.
+    - records (List[record]): List of records.
+    - page_size (int): Page size obtained from config manager.
+    """
     page_number: int
     header: page_header = field(default_factory=page_header.default_header)
     offsets: List[bytes] = field(default_factory=list)

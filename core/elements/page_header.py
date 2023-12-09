@@ -8,20 +8,30 @@ from core.elements.page_type import page_type
 
 @dataclass
 class page_header:
+    """
+    Represents the header of a page.
 
+    Attributes:
+    - pagetype: The type of the page.
+    - num_cells: Number of cells in the page.
+    - data_start: Start position of data in the page.
+    - right_relative: Right relative pointer.
+    - parent: Pointer to the parent page.
+    """
     pagetype: page_type
     num_cells: np.uint16
-
     data_start: np.uint16
     right_relatve: np.uint32
     parent: np.uint32
 
     @classmethod
     def bytes_to_int(cls,byte_st: bytes):
+        # Converts bytes to an integer
         return int.from_bytes(byte_st, "big")
 
     @classmethod
     def int_object_to_bytes(cls,int_like_val: Any, size: int):
+        # Converts an integer-like value to bytes
         try:
             int_like_val.tobytes(">")
         except Exception:
@@ -33,6 +43,7 @@ class page_header:
                 return int(int_like_val).to_bytes(size, "big", signed=True)
 
     def object_to_bytes(self):
+        # Converts the object's attributes to bytes
         return b''.join(
             starmap(
                 self.int_object_to_bytes,
@@ -50,6 +61,7 @@ class page_header:
 
     @classmethod
     def default_header(cls, is_root=False):
+        # Generates a default header
         return cls(
             page_type.table_leaf_page,
             np.uint16(0),
@@ -60,6 +72,8 @@ class page_header:
 
     @classmethod
     def bytes_to_object(cls, byte_stream: bytes):
+        # Converts bytes to a page_header object
+        
         base_obj = cls.default_header()
         raw = io.BytesIO(byte_stream)
         read_buff = io.BufferedRandom(raw)

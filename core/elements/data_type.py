@@ -7,7 +7,8 @@ from struct import pack, unpack
 
 
 class data_type(Enum):
-
+    # Enum defining various data types with associated attributes
+    # Each enum member holds type name, type ID, byte size, and data type
     NULL = ("NULL", 0, 0, None)
     TINYINT = ("TINYINT", 1, 1, np.int8)
     SMALLINT = ("SMALLINT", 2, 2, np.int16)

@@ -7,10 +7,22 @@ T = TypeVar("T")
 @total_ordering
 class data_pointer(Generic[T]):
     
-    def __init__(self, type_id_extractor: Callable[[T], int], keyed_instance: T) -> None:
-        self.id: int = type_id_extractor(keyed_instance)
+    def __init__(self, type_id_extractor: Callable[[T], int], keyed_object: T) -> None:
+        """
+        Initializes a KeyedEntity object encapsulating an entity and its associated key.
+
+        Args:
+        - key_extractor: A function that extracts the key from the provided entity.
+        - entity: An instance of some type T that has an associated key.
+
+        Attributes:
+        - id: The extracted key associated with the entity.
+        - id_extractor: The function used to extract the key from the entity.
+        - data: The original entity being encapsulated.
+        """
+        self.id: int = type_id_extractor(keyed_object)
         self.id_extractor: Callable[[T], int] = type_id_extractor
-        self.data: T = keyed_instance
+        self.data: T = keyed_object
 
     def get_id(self):
         return self.id
@@ -28,13 +40,13 @@ class data_pointer(Generic[T]):
 
     def __repr__(self) -> str:
         try:
-            data_repr = str(self.data)
+            var = str(self.data)
         except:
-            data_repr = "..."
+            var = "..."
         finally:
-            if len(data_repr) > 300:
-                data_repr = "..."
+            if len(var) > 300:
+                var = "..."
 
         return (
-            f"[KEY ID: {self.id} DATA CELL: {data_repr} ]"
+            f"[KEY ID: {self.id} DATA CELL: {var} ]"
         )

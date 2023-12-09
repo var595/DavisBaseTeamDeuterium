@@ -10,7 +10,7 @@ class output_format:
     def splash_screen():
         print(config_manager.line("-", 80))
         print(f"{config_manager.get_db_name()} CLI")
-        print("\nFor supported commands use: \"help;\".")
+        print("\nFor a list of supported commands: \"help;\"")
         print(config_manager.line("-", 80)
 )
 

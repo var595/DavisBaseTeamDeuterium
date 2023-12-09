@@ -13,6 +13,18 @@ from core.config.config_manager import config_manager
 
 @dataclass
 class page_writer:
+    """
+    Class to handle writing pages.
+
+    Attributes:
+    - page_number (int): The page number.
+    - header (page_header): The page header.
+    - offsets (List[bytes]): Offsets list.
+    - keys (List[data_cell]): List of data cells.
+    - last_child_pg (int): Last child page number.
+    - page_size (int): Page size obtained from config manager.
+    """
+
     page_number: int
     header: page_header = field(default_factory=page_header.default_header)
     offsets: List[bytes] = field(default_factory=list)
@@ -22,6 +34,15 @@ class page_writer:
 
 
     def object_to_bytes(self, parent_page_num: int):
+        """
+        Convert object attributes to bytes.
+
+        Parameters:
+        - parent_page_num (int): Parent page number.
+
+        Returns:
+        - Byte stream representing object attributes.
+        """
         self.offsets = deque()
         cell_bytes_ll = deque()
         num_cells = np.uint16(0)
@@ -63,6 +84,16 @@ class page_writer:
     
     @classmethod
     def bytes_to_object(cls, byte_stream: bytes, pg_num: int):
+        """
+        Convert bytes to object attributes.
+
+        Parameters:
+        - byte_stream (bytes): Byte stream to convert.
+        - pg_num (int): Page number.
+
+        Returns:
+        - Page Writer object with parsed attributes.
+        """
         raw = io.BytesIO(byte_stream)
         read_buff = io.BufferedRandom(raw)
 
@@ -96,6 +127,16 @@ class page_writer:
         )
     @classmethod
     def int_object_to_bytes(cls,int_like_val: Any, size: int):
+        """
+        Convert integer-like objects to bytes.
+
+        Parameters:
+        - int_like_val (Any): Integer-like value to convert.
+        - size (int): Size of the resulting bytes.
+
+        Returns:
+        - Bytes representation of the input integer-like value.
+        """
         try:
             int_like_val.tobytes(">")
         except Exception:
@@ -109,4 +150,13 @@ class page_writer:
    
     @classmethod
     def bytes_to_int(cls, byte_st: bytes):
+        """
+        Convert bytes to integers.
+
+        Parameters:
+        - byte_st (bytes): Byte stream to convert.
+
+        Returns:
+        - Integer value obtained from the byte stream.
+        """
         return int.from_bytes(byte_st, "big")
