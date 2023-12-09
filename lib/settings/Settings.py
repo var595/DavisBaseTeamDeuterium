@@ -5,7 +5,7 @@ class static(object):
 
 class Settings(static):
     _prompt = "davisql> "
-    _db_name = "OppenheimerDB"
+    _db_name = "DavisBase"
     _data_dir = "data"
     _exec_path = ""
 
