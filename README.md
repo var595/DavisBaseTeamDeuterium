@@ -6,10 +6,10 @@
 #### (1) Initial Set up in Local Environment
 
 ```bash
-  git clone https://github.com/danielwscott23/6360-TeamProject.git
+  gh repo clone var595/DavisBaseTeamDeuterium
   
   
-  cd 6360-TeamProject
+  cd DavisBaseTeamDeuterium
   
   # install dependencies
   pip3 install -r requirements.txt
