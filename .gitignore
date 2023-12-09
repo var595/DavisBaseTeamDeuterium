@@ -1,6 +1,33 @@
 data/
-env/
-.env/
-*.pyc
-.DS_Store
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ds store file
+*.DS_Store
+*dump.rdb
+
+# mypy
+.mypy_cache/
+.vscode/temp.sql
+.vscode/last.sql
+
 .pytest_cache/
+.DS_Store
+.idea/
+.keys/
+.scannerwork/*
+
+# Environments
+myenv/
+.env
+.venv
+env/
+venv/
+ENV/
+nenv/
+env.bak/
+venv.bak/
+*env*/
