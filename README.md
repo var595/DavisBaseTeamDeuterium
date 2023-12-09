@@ -1,5 +1,5 @@
 # 6360-TeamProject Database Engine
-##  DavisBase 
+## DavisBase Database 
 
 <br />
 
@@ -47,7 +47,7 @@
     
     CREATE INDEX <table> (<column>)                                  : Create an index on a column
     
-    SELECT <column list | *> FROM <table> <WHERE condition>         : Query data from the database
+    SELECT <column list | *> FROM <table> <WHERE condition>         : sql_query_parser data from the database
     
     UPDATE <table> SET <set directives> <WHERE condition>           : Update data in the tables
     
