@@ -8,7 +8,8 @@ from core.elements.b_tree_node import b_tree_node
 from core.elements.data_pointer import data_pointer
 from core.elements.page_header import page_header
 from core.elements.record import record
-from core.config.config_manager import config_manager
+from core.config.config_manager import ConfigManager
+
 
 @dataclass
 class leaf_writer:
@@ -22,11 +23,12 @@ class leaf_writer:
     - records (List[record]): List of records.
     - page_size (int): Page size obtained from config manager.
     """
+
     page_number: int
     header: page_header = field(default_factory=page_header.default_header)
     offsets: List[bytes] = field(default_factory=list)
     records: List[record] = field(default_factory=list)
-    page_size: int = config_manager.get_page_size()
+    page_size: int = ConfigManager.get_page_size()
 
     def object_to_bytes(self):
         self.offsets = deque()
@@ -48,31 +50,25 @@ class leaf_writer:
 
         self.header.num_cells = num_cells
         header_bytes = self.header.object_to_bytes()
-        offset_bytes = b''.join(self.offsets)
-        cell_bytes = b''.join(cell_bytes_ll)
-        padding_len = self.page_size - len(header_bytes) - len(offset_bytes) - len(cell_bytes)
+        offset_bytes = b"".join(self.offsets)
+        cell_bytes = b"".join(cell_bytes_ll)
+        padding_len = (
+            self.page_size - len(header_bytes) - len(offset_bytes) - len(cell_bytes)
+        )
 
         padding = self.int_object_to_bytes(0, 1) * padding_len
         self.offsets = []
 
-        byte_stream = b''.join([
-            header_bytes,
-            offset_bytes,
-            padding,
-            cell_bytes
-        ])
+        byte_stream = b"".join([header_bytes, offset_bytes, padding, cell_bytes])
 
         return byte_stream
 
     def to_bpnode(self) -> b_plus_node:
         x = b_plus_node(True, None)
         x.keys = []
-        
+
         for rec in self.records:
-            dp = data_pointer(
-                record.get_id,
-                rec
-            )
+            dp = data_pointer(record.get_id, rec)
             x.keys.append(dp)
 
         x.keys.sort(key=data_pointer.get_id)
@@ -81,17 +77,13 @@ class leaf_writer:
     def to_bnode(self) -> b_tree_node:
         x = b_tree_node(True)
         x.keys = []
-        
+
         for rec in self.records:
-            dp = data_pointer(
-                record.get_id,
-                rec
-            )
+            dp = data_pointer(record.get_id, rec)
             x.keys.append(dp)
 
         x.keys.sort(key=data_pointer.get_id)
         return x
-
 
     @classmethod
     def bytes_to_object(cls, byte_stream: bytes, pg_num: int):
@@ -111,7 +103,6 @@ class leaf_writer:
             cell_offset_int = cls.bytes_to_int(cell_offset_bytes)
             offsets_paired.append((cell_offset_bytes, cell_offset_int))
 
-
         records = list()
         for _, ci in offsets_paired:
             read_buff.seek(ci)
@@ -121,15 +112,10 @@ class leaf_writer:
             rec = record.bytes_to_object(record_bytes)
             records.append(rec)
 
-        return cls(
-            pg_num,
-            header,
-            list(),
-            records
-        )
+        return cls(pg_num, header, list(), records)
 
     @classmethod
-    def int_object_to_bytes(cls,int_like_val: Any, size: int):
+    def int_object_to_bytes(cls, int_like_val: Any, size: int):
         try:
             int_like_val.tobytes(">")
         except Exception:
@@ -139,7 +125,7 @@ class leaf_writer:
                 return int(int_like_val).to_bytes(size, "big")
             else:
                 return int(int_like_val).to_bytes(size, "big", signed=True)
-                
+
     @classmethod
     def bytes_to_int(cls, byte_st: bytes):
         return int.from_bytes(byte_st, byteorder="big")

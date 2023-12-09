@@ -1,15 +1,15 @@
 import sys
 import os
-from core.config.config_manager import config_manager
+from core.config.config_manager import ConfigManager
 
 
 class OutputFormat:
     @staticmethod
     def splash_screen():
-        print(config_manager.line("-", 80))
-        print(f"{config_manager.get_db_name()} CLI")
+        print(ConfigManager.line("-", 80))
+        print(f"{ConfigManager.get_db_name()} CLI")
         print('\nFor a list of supported commands: "help;"')
-        print(config_manager.line("-", 80))
+        print(ConfigManager.line("-", 80))
 
     @staticmethod
     def disable_stdout():

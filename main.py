@@ -1,14 +1,14 @@
 import os
 import traceback
 from core.decoders.output_format import OutputFormat
-from core.config.config_manager import config_manager
+from core.config.config_manager import ConfigManager
 from core.handlers.database_manager import database_manager
 
 DEBUG = True
 
 
 def main_loop():
-    config_manager.set_exec_path(os.path.dirname(os.path.realpath(__file__)))
+    ConfigManager.set_exec_path(os.path.dirname(os.path.realpath(__file__)))
 
     OutputFormat.splash_screen()
 
@@ -16,9 +16,9 @@ def main_loop():
     in_memory_indexes = {}
 
     database_manager.load_db(in_memory_tables, in_memory_indexes)
-    while not config_manager.is_exit():
+    while not ConfigManager.is_exit():
         print("\n")
-        usr_in = [input(config_manager.get_prompt())]
+        usr_in = [input(ConfigManager.get_prompt())]
 
         cont = not usr_in[0].endswith(";")
 
@@ -36,9 +36,9 @@ def main_loop():
                 traceback.print_exc()
             else:
                 print("\n")
-                print(config_manager.line("-", 80))
+                print(ConfigManager.line("-", 80))
                 print(traceback.format_exception_only(e.__class__, e)[-1])
-                print(config_manager.line("-", 80))
+                print(ConfigManager.line("-", 80))
             continue
 
 

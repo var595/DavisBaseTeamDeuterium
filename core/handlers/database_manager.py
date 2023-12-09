@@ -3,13 +3,13 @@ import shutil
 import traceback
 from pyparsing import Dict
 from core.elements.Index import Index
-from core.elements.system_table import system_table
+from core.elements.system_table import SystemTable
 from core.elements.Table import Table
 from core.decoders.sql_command_handler import SQLCommandHandler
 from core.decoders.output_format import OutputFormat
 
 from core.decoders.sql_query_parser import SQLQueryParser
-from core.config.config_manager import config_manager
+from core.config.config_manager import ConfigManager
 from core.handlers.create_db import create_db
 
 
@@ -17,7 +17,7 @@ class database_manager:
     @staticmethod
     def command_parse(command: str, tables: Dict, indexes: Dict):
         if command.lower() == "exit;":
-            config_manager.set_exit(True)
+            ConfigManager.set_exit(True)
             return
         elif command.lower() == "clear;":
             os.system("cls" if os.name == "nt" else "clear")
@@ -34,7 +34,7 @@ class database_manager:
         else:
             # try:
             parsed_tokens = SQLQueryParser(command).parse()[0]
-            SQLCommandHandler.router(parsed_tokens, tables, indexes)
+            SQLCommandHandler().router(parsed_tokens, tables, indexes)
             database_manager.save_to_disk(tables, indexes)
             database_manager.load_db(tables, indexes)
 
@@ -44,18 +44,19 @@ class database_manager:
 
     @staticmethod
     def create_database(tables: Dict, indexes: Dict):
-        SQLCommandHandler.router(create_db.create_system_tables(), tables, indexes)
-        SQLCommandHandler.router(create_db.create_system_columns(), tables, indexes)
+        command_handler = SQLCommandHandler()
+        command_handler.router(create_db.create_system_tables(), tables, indexes)
+        command_handler.router(create_db.create_system_columns(), tables, indexes)
 
         for entry in create_db.fill_system_tables():
             try:
-                SQLCommandHandler.router(entry, tables, indexes)
+                command_handler.router(entry, tables, indexes)
             except:
                 traceback.print_exc()
 
         for entry in create_db.fill_system_columns():
             try:
-                SQLCommandHandler.router(entry, tables, indexes)
+                command_handler.router(entry, tables, indexes)
             except:
                 traceback.print_exc()
 
@@ -64,12 +65,12 @@ class database_manager:
         database_manager.save_to_disk(tables, indexes)
 
     def drop_database(tables, indexes):
-        exec_path = config_manager.get_exec_path()
-        if os.path.exists(os.path.join(exec_path, config_manager.get_data_dir())):
+        exec_path = ConfigManager.get_exec_path()
+        if os.path.exists(os.path.join(exec_path, ConfigManager.get_data_dir())):
             tables.clear()
             indexes.clear()
             for root, dirs, files in os.walk(
-                os.path.join(exec_path, config_manager.get_data_dir())
+                os.path.join(exec_path, ConfigManager.get_data_dir())
             ):
                 for f in files:
                     os.unlink(os.path.join(root, f))
@@ -80,21 +81,21 @@ class database_manager:
 
     @staticmethod
     def save_to_disk(tables, indexes):
-        tbl_ext = config_manager.get_tbl_ext()
-        ndx_ext = config_manager.get_ndx_ext()
-        exec_path = config_manager.get_exec_path()
+        tbl_ext = ConfigManager.get_tbl_ext()
+        ndx_ext = ConfigManager.get_ndx_ext()
+        exec_path = ConfigManager.get_exec_path()
 
-        if not os.path.exists(os.path.join(exec_path, config_manager.get_data_dir())):
-            os.makedirs(os.path.join(exec_path, config_manager.get_data_dir()))
+        if not os.path.exists(os.path.join(exec_path, ConfigManager.get_data_dir())):
+            os.makedirs(os.path.join(exec_path, ConfigManager.get_data_dir()))
 
         for k, tab in tables.items():
             if k not in {"system_tables", "system_columns"}:
                 rec_count = tab.id_row
-                parsed_tokens = system_table.update_table_data(k, rec_count)
+                parsed_tokens = SystemTable.update_table_data(k, rec_count)
 
-                SQLCommandHandler.router(parsed_tokens, tables, indexes)
+                SQLCommandHandler().router(parsed_tokens, tables, indexes)
                 file_path = os.path.join(
-                    exec_path, config_manager.get_data_dir(), f"{k}{tbl_ext}"
+                    exec_path, ConfigManager.get_data_dir(), f"{k}{tbl_ext}"
                 )
                 with open(file_path, "wb") as f:
                     f.write(tab.object_to_bytes())
@@ -102,17 +103,17 @@ class database_manager:
         for k, tab in tables.items():
             if k in {"system_tables", "system_columns"}:
                 rec_count = tab.id_row
-                parsed_tokens = system_table.update_table_data(k, rec_count)
-                SQLCommandHandler.router(parsed_tokens, tables, indexes)
+                parsed_tokens = SystemTable.update_table_data(k, rec_count)
+                SQLCommandHandler().router(parsed_tokens, tables, indexes)
                 file_path = os.path.join(
-                    exec_path, config_manager.get_data_dir(), f"{k}{tbl_ext}"
+                    exec_path, ConfigManager.get_data_dir(), f"{k}{tbl_ext}"
                 )
                 with open(file_path, "wb") as f:
                     f.write(tab.object_to_bytes())
 
         for k, ndx in indexes.items():
             file_path = os.path.join(
-                exec_path, config_manager.get_data_dir(), f"{k}{ndx_ext}"
+                exec_path, ConfigManager.get_data_dir(), f"{k}{ndx_ext}"
             )
             with open(file_path, "wb") as f:
                 f.write(ndx.object_to_bytes())
@@ -136,11 +137,12 @@ class database_manager:
 
     @staticmethod
     def load_db(tables: Dict, indexes: Dict):
-        page_size = config_manager.get_page_size()
-        exec_path = config_manager.get_exec_path()
-        tbl_ext = config_manager.get_tbl_ext()
-        ndx_ext = config_manager.get_ndx_ext()
-        data_dir = os.path.join(exec_path, config_manager.get_data_dir())
+        command_handler = SQLCommandHandler()
+        page_size = ConfigManager.get_page_size()
+        exec_path = ConfigManager.get_exec_path()
+        tbl_ext = ConfigManager.get_tbl_ext()
+        ndx_ext = ConfigManager.get_ndx_ext()
+        data_dir = os.path.join(exec_path, ConfigManager.get_data_dir())
         system_tables = os.path.join(data_dir, f"system_tables{tbl_ext}")
         system_columns = os.path.join(data_dir, f"system_columns{tbl_ext}")
 
@@ -152,7 +154,7 @@ class database_manager:
                 OutputFormat.disable_stdout()
                 table = Table.bytes_to_object(
                     f.read(),
-                    config_manager.get_page_size(),
+                    ConfigManager.get_page_size(),
                     2,
                     create_db.system_tables_column_data(),
                     "system_tables",
@@ -165,7 +167,7 @@ class database_manager:
                 OutputFormat.disable_stdout()
                 table = Table.bytes_to_object(
                     f.read(),
-                    config_manager.get_page_size(),
+                    ConfigManager.get_page_size(),
                     11,
                     create_db.system_columns_column_data(),
                     "system_columns",
@@ -178,33 +180,33 @@ class database_manager:
                 "select id_row from system_tables where table_name = 'system_tables';"
             ).parse()[0]
             pdict["ret_mode"] = True
-            table_rec_count = SQLCommandHandler.router(pdict, tables, indexes)
+            table_rec_count = command_handler.router(pdict, tables, indexes)
 
             pdict = SQLQueryParser(
                 "select id_row from system_tables where table_name = 'system_columns';"
             ).parse()[0]
             pdict["ret_mode"] = True
-            col_rec_count = SQLCommandHandler.router(pdict, tables, indexes)
+            col_rec_count = command_handler.router(pdict, tables, indexes)
 
             tables["system_tables"].id_row = table_rec_count[-1][-1]
             tables["system_columns"].id_row = col_rec_count[-1][-1]
 
             pdict = SQLQueryParser("show tables;").parse()[0]
             pdict["ret_mode"] = True
-            table_names = SQLCommandHandler.router(pdict, tables, indexes)
+            table_names = command_handler.router(pdict, tables, indexes)
             for t in table_names:
                 table_name = t[-1]
                 if table_name not in tables:
                     table_name = table_name.lower()
                     table_path = os.path.join(
                         exec_path,
-                        config_manager.get_data_dir(),
+                        ConfigManager.get_data_dir(),
                         f"{table_name}{tbl_ext}",
                     )
 
-                    cdata = system_table.parse_column_data(table_name)
+                    cdata = SystemTable.parse_column_data(table_name)
                     cdata["ret_mode"] = True
-                    cdata_list = SQLCommandHandler.router(cdata, tables, indexes)
+                    cdata_list = command_handler.router(cdata, tables, indexes)
                     cdata_list.sort(key=lambda x: x[2])
 
                     column_data = {
@@ -214,9 +216,9 @@ class database_manager:
                         "column_key_types": [rec[4] for rec in cdata_list],
                     }
 
-                    tdata = system_table.parse_table_data(table_name)
+                    tdata = SystemTable.parse_table_data(table_name)
                     tdata["ret_mode"] = True
-                    output = SQLCommandHandler.router(tdata, tables, indexes)
+                    output = command_handler.router(tdata, tables, indexes)
 
                     rec_count = 0
 

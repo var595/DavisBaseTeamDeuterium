@@ -1,4 +1,3 @@
-
 from collections import deque
 from dataclasses import dataclass, field
 import io
@@ -8,7 +7,7 @@ import numpy as np
 from core.elements.page_header import page_header
 from core.elements.page_type import page_type
 from core.elements.data_cell import data_cell
-from core.config.config_manager import config_manager
+from core.config.config_manager import ConfigManager
 
 
 @dataclass
@@ -30,8 +29,7 @@ class page_writer:
     offsets: List[bytes] = field(default_factory=list)
     keys: List[data_cell] = field(default_factory=list)
     last_child_pg: int = field(default_factory=int)
-    page_size: int = config_manager.get_page_size()
-
+    page_size: int = ConfigManager.get_page_size()
 
     def object_to_bytes(self, parent_page_num: int):
         """
@@ -66,22 +64,19 @@ class page_writer:
         self.header.right_relatve = np.uint32(self.last_child_pg)
 
         header_bytes = self.header.object_to_bytes()
-        offset_bytes = b''.join(self.offsets)
-        cell_bytes = b''.join(cell_bytes_ll)
-        padding_len = self.page_size - len(header_bytes) - len(offset_bytes) - len(cell_bytes)
+        offset_bytes = b"".join(self.offsets)
+        cell_bytes = b"".join(cell_bytes_ll)
+        padding_len = (
+            self.page_size - len(header_bytes) - len(offset_bytes) - len(cell_bytes)
+        )
 
         padding = self.int_object_to_bytes(0, 1) * padding_len
         self.offsets = []
 
-        byte_stream = b''.join([
-            header_bytes,
-            offset_bytes,
-            padding,
-            cell_bytes
-        ])
+        byte_stream = b"".join([header_bytes, offset_bytes, padding, cell_bytes])
 
         return byte_stream
-    
+
     @classmethod
     def bytes_to_object(cls, byte_stream: bytes, pg_num: int):
         """
@@ -110,7 +105,6 @@ class page_writer:
             cell_offset_int = cls.bytes_to_int(cell_offset_bytes)
             offsets_paired.append((cell_offset_bytes, cell_offset_int))
 
-
         router_cells = list()
         for _, ci in offsets_paired:
             read_buff.seek(ci)
@@ -119,14 +113,11 @@ class page_writer:
             router_cells.append(rec)
 
         return InternalPageWriter(
-            pg_num,
-            header,
-            list(),
-            router_cells,
-            header.right_relatve
+            pg_num, header, list(), router_cells, header.right_relatve
         )
+
     @classmethod
-    def int_object_to_bytes(cls,int_like_val: Any, size: int):
+    def int_object_to_bytes(cls, int_like_val: Any, size: int):
         """
         Convert integer-like objects to bytes.
 
@@ -146,8 +137,7 @@ class page_writer:
                 return int(int_like_val).to_bytes(size, "big")
             else:
                 return int(int_like_val).to_bytes(size, "big", signed=True)
-                
-   
+
     @classmethod
     def bytes_to_int(cls, byte_st: bytes):
         """
