@@ -1,4 +1,4 @@
-# 6360-TeamDeuterium DavisBase
+# CS6360 TeamDeuterium DavisBase
 ## DavisBase Database 
 
 <br />
