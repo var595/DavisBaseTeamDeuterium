@@ -130,6 +130,6 @@ class LeafWriter:
             else:
                 return int(int_like_val).to_bytes(size, "big", signed=True)
                 
-     @classmethod
-        def bytes_to_int(cls, byte_st: bytes):
-            return int.from_bytes(byte_st, byteorder="big")
+    @classmethod
+    def bytes_to_int(cls, byte_st: bytes):
+        return int.from_bytes(byte_st, byteorder="big")
