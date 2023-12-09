@@ -1,21 +1,20 @@
-
 import os
 import traceback
-from core.decoders.output_format import output_format
+from core.decoders.output_format import OutputFormat
 from core.config.config_manager import config_manager
 from core.handlers.database_manager import database_manager
 
 DEBUG = True
 
-def main_loop():
 
+def main_loop():
     config_manager.set_exec_path(os.path.dirname(os.path.realpath(__file__)))
-    
-    output_format.splash_screen()
+
+    OutputFormat.splash_screen()
 
     in_memory_tables = {}
     in_memory_indexes = {}
-    
+
     database_manager.load_db(in_memory_tables, in_memory_indexes)
     while not config_manager.is_exit():
         print("\n")
@@ -41,6 +40,7 @@ def main_loop():
                 print(traceback.format_exception_only(e.__class__, e)[-1])
                 print(config_manager.line("-", 80))
             continue
+
 
 if __name__ == "__main__":
     main_loop()
