@@ -12,7 +12,7 @@ from core.decoders.handlers.create_index_handler import CreateIndexHandler
 
 
 class SQLCommandHandler:
-    def __init__(self):
+    def __init__(self): 
         self.handlers = {
             "CREATE TABLE": CreateTableHandler(self),
             "CREATE INDEX": CreateIndexHandler(self),
