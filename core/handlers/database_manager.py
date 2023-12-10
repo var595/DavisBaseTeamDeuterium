@@ -32,15 +32,14 @@ class database_manager:
         elif command.lower() == "help;":
             database_manager.help()
         else:
-            # try:
-            parsed_tokens = SQLQueryParser(command).parse()[0]
-            SQLCommandHandler().router(parsed_tokens, tables, indexes)
-            database_manager.save_to_disk(tables, indexes)
-            database_manager.load_db(tables, indexes)
+            try:
+                parsed_tokens = SQLQueryParser(command).parse()[0]
+                SQLCommandHandler().router(parsed_tokens, tables, indexes)
+                database_manager.save_to_disk(tables, indexes)
+                database_manager.load_db(tables, indexes)
 
-        # except Exception as e:
-        #     print(e)
-        #     print("Error: Invalid command - Please check your syntax and try again")
+            except Exception as e:
+                print("Invalid command! Check syntax")
 
     @staticmethod
     def create_database(tables: Dict, indexes: Dict):
@@ -60,7 +59,7 @@ class database_manager:
             except:
                 traceback.print_exc()
 
-        print(f"Database created.")
+        print(f"Initial database created!")
 
         database_manager.save_to_disk(tables, indexes)
 
@@ -77,7 +76,7 @@ class database_manager:
                 for d in dirs:
                     shutil.rmtree(os.path.join(root, d))
 
-        print(f"Database dropped.")
+        print(f"Initial database dropped!")
 
     @staticmethod
     def save_to_disk(tables, indexes):

@@ -24,14 +24,14 @@ class BaseHandler:
 
         if creation_mode:
             if tname in in_mem_tables:
-                raise ValueError(f"Table named {tname} already exists!")
+                raise ValueError(f"Table {tname} already exists!")
             else:
                 return False
         else:
             if tname in in_mem_tables:
                 return in_mem_tables[tname]
             else:
-                raise FileNotFoundError(f"Table named {tname} not found!")
+                raise FileNotFoundError(f"Table {tname} not found!")
 
     def get_index(
         self,
@@ -46,11 +46,11 @@ class BaseHandler:
 
         if creation_mode:
             if name in in_mem_idx:
-                raise ValueError(f"Index named {name} already exists!")
+                raise ValueError(f"Index {name} already exists!")
             else:
                 return False
         else:
             if name in in_mem_idx:
                 return in_mem_idx[name]
             else:
-                raise FileNotFoundError(f"Index named {name} not found!")
+                raise FileNotFoundError(f"Index {name} not found!")

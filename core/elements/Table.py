@@ -78,7 +78,7 @@ class Table:
             self.name = name
 
         else:
-            print("Missing column data, update failed.")
+            print("Update failed due to missing column data!")
 
     @classmethod
     def from_table_file(cls, file_path: str) -> Table:
@@ -248,7 +248,8 @@ class Table:
         )
 
         if not self.validate_record(insertion_record):
-            raise OverflowError(f"record with values {insertion_values} exceeds maximum permissible record byte size of {self.max_rec_size}")
+            raise OverflowError(f"Record {insertion_values} exceeds maximum"
+                                            f" possible record byte size {self.max_rec_size}")
 
         ptr_to_record = data_pointer[record](record.get_id, insertion_record)
         self.bptree.insert(ptr_to_record)
@@ -290,8 +291,8 @@ class Table:
 
                 for rec in updated_refs:
                     if not self.validate_record(rec):
-                        raise OverflowError(f"record with values {rec.data_values} exceeds maximum"
-                                            f" permissible record byte size of {self.max_rec_size}")
+                        raise OverflowError(f"Record {rec.data_values} exceeds maximum"
+                                            f" possible record byte size {self.max_rec_size}")
 
                 keys_to_update.extend(current_leaf.keys)
                 record_refs_all.extend(updated_refs)
@@ -306,8 +307,8 @@ class Table:
 
                 for rec in updated_refs:
                     if not self.validate_record(rec):
-                        raise OverflowError(f"record with values {rec.data_values} exceeds maximum"
-                                            f" permissible record byte size of {self.max_rec_size}")
+                       raise OverflowError(f"Record {rec.data_values} exceeds maximum"
+                                            f" possible record byte size {self.max_rec_size}")
 
                 keys_to_update.extend(current_leaf.keys)
                 record_refs_all.extend(updated_refs)
@@ -445,7 +446,7 @@ class Table:
             return list(map(self.get_order_column_name, name_list))
 
         else:
-            raise NameError(f"One of the column names in {name_list} not found in table {self.name}")
+            raise NameError(f"Column {name_list} not found in {self.name}")
 
     def get_order_column_name(self, col_name: str) -> int:
         existing_cols = self.column_data["column_names"]
@@ -453,7 +454,7 @@ class Table:
         if col_name in existing_cols:
             return existing_cols.index(col_name)
         else:
-            raise NameError(f"Column Name {col_name} not found in table {self.name}.")
+            raise NameError(f"Column {col_name} not found in {self.name}")
 
     def validate_insert(self, value_list: List[Any]) -> bool:
 
@@ -473,7 +474,7 @@ class Table:
             if is_null == "YES":
                 return 
             else:
-                raise TypeError(f"Column {names[i]} of type {typ.value[0]} can't be NULL.")
+                raise TypeError(f"Column {names[i]} of type {typ.value[0]} can't be NULL")
 
 
         typ_string, type_class = typ.value[0], typ.value[3]
@@ -543,10 +544,10 @@ class Table:
                 new_val = val
 
         except ValueError:
-            raise TypeError(f"A value for column {names[i]} of type {typ_string} can't be attained from {val}.")
+            raise TypeError(f"Column {names[i]} of type {typ_string} can't be attained from {val}")
 
         if not pred:
-            raise ValueError(f"Column {names[i]} of type {typ_string} can't have the value {val}.")
+            raise ValueError(f"Column {names[i]} of type {typ_string} can't be {val}")
 
         if (role == "UNI" or role == "PRI") and not skip_uni:
             found, _ = self.select({
@@ -561,7 +562,7 @@ class Table:
             })
 
             if found:
-                raise ValueError(f"Column {names[i]} has a uniqueness constraint, and value {val} already exists.")
+                raise ValueError(f"{names[i]} has a constraint of uniqueness, and {val} currently exists")
 
         return new_val
 

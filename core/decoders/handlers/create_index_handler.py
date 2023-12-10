@@ -35,4 +35,4 @@ class CreateIndexHandler(BaseHandler):
                 table_name, cache_tables, cache_indexes, creation_mode=False
             )
             table.indexes[column_name] = cache_indexes[table_name + "." + column_name]
-        print(f"Index {table_name}.{column_name} created.")
+        print(f"Created index {table_name}.{column_name}")
