@@ -1,9 +1,7 @@
 # CS6360 TeamDeuterium DavisBase
-## DavisBase Database 
-
 <br />
 
-#### (1) Initial Set up in Local Environment
+#### (1) Project Setup
 
 ```bash
   gh repo clone var595/DavisBaseTeamDeuterium
