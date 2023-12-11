@@ -1,7 +1,7 @@
 # CS6360 TeamDeuterium DavisBase
 <br />
 
-#### (1) Project Setup
+### (1) Project Setup
 
 ```bash
   gh repo clone var595/DavisBaseTeamDeuterium
