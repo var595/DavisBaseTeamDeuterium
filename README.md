@@ -15,20 +15,16 @@
   pip3 install -r requirements.txt
   ```
   
-
 ### (2) Launching application
 
   ```bash
   python3 main.py
   ```
-  The output will be as follows :-
   
-  <img width="572" alt="image" src="https://user-images.githubusercontent.com/56747530/205740343-bf4bfbc9-3107-4b23-80d5-804fabb4e892.png">
-  
-  run init db command to intilaize the database. A data folder will be created in your current directory which will store information about the tables and   indexes. Note that the database supports only one instance per directory
+  Initialize Database
   
   ```bash
-  oppenheimer-db> init db;
+  davisql> init db;
   ```
   
   
